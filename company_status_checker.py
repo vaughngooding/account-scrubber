@@ -1,3 +1,4 @@
+import os
 import openai
 import pandas as pd
 import requests
@@ -6,17 +7,19 @@ from bs4 import BeautifulSoup
 from supabase import create_client, Client
 
 # --- CONFIG ---
-SUPABASE_URL = "https://wwhebjlhutrkgyoprdus.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3aGViamxodXRya2d5b3ByZHVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4OTQzNjgsImV4cCI6MjA2NjQ3MDM2OH0.IBel8gCdfa-64ggNt9hFp2VohS7Lqfi-mBEgoQbUaBo"
-OPENAI_API_KEY = "your-openai-key-here"  # <--- Replace this with your actual API key
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # If using OpenAI
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
+
 CSV_FILE = "Vaughn's LinkedIn Accounts FY26.csv"
 TABLE_NAME = "company_status_results"
 COLUMN_COMPANY_NAME = "account_name"
 COLUMN_SUMMARY = "scrub_summary"
 
-# --- INIT ---
-openai.api_key = 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
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Initialize clients
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
 # --- FUNCTIONS ---
 def search_google(company):
@@ -41,12 +44,13 @@ def ask_chatgpt(company, context):
 Company: {company}
 Snippets:\n{context}
 Return a 2-3 sentence summary with links if relevant."""
-    response = openai.ChatCompletion.create(
+    
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.3
     )
-    return response.choices[0].message["content"].strip()
+    return response.choices[0].message.content.strip()
 
 # --- RUN ---
 df = pd.read_csv(CSV_FILE)
