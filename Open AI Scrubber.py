@@ -1,15 +1,22 @@
+import os
 import openai
-from supabase import create_client, Client
+from supabase import create_client, Client  # ← Add this line
+
+# Get API key from environment
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
+
+# Initialize the client
+client = openai.OpenAI(
+    api_key=PERPLEXITY_API_KEY,
+    base_url="https://api.perplexity.ai"
+)
 
 # ---🔐 Supabase Config --- #
-SUPABASE_URL = "https://wwhebjlhutrkgyoprdus.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3aGViamxodXRya2d5b3ByZHVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4OTQzNjgsImV4cCI6MjA2NjQ3MDM2OH0.IBel8gCdfa-64ggNt9hFp2VohS7Lqfi-mBEgoQbUaBo"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SOURCE_TABLE = "TAE Account List"           # ✅ Updated source
 DEST_TABLE = "TAE Account Scrub FY26"     # ✅ Updated destination
 
-# ---🔐 OpenAI Config --- #
-OPENAI_API_KEY = "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"
-client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
 # ---📦 Supabase Client Init --- #
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
